@@ -30,7 +30,7 @@ public class ClassJobEmotes {
 	
 	//futur (non official) TODO: get actual icons and shit
 	public static String ICON_SAM	= ":SAM:"; //samurai
-	public static String ICON_RMG	= ":RMG:"; //red mage
+	public static String ICON_REM	= ":REM:"; //red mage
 	
 	//gatherer
 	public static String ICON_BTN	= ":BTN:"; //botanist
@@ -38,14 +38,14 @@ public class ClassJobEmotes {
 	public static String ICON_MIN	= ":MIN:"; //miner
 	
 	//crafters
-	public static String ICON_ALC	= ":ALC:";
-	public static String ICON_ARM	= ":ARM:";
-	public static String ICON_BSM	= ":BSM:";
-	public static String ICON_CRP	= ":CRP:";
-	public static String ICON_CUL	= ":CUL:";
-	public static String ICON_GSM	= ":GSM:";
-	public static String ICON_LTW	= ":LTW:";
-	public static String ICON_WVR	= ":WVR:";
+	public static String ICON_ALC	= ":ALC:"; //alchimist
+	public static String ICON_ARM	= ":ARM:"; //armorer
+	public static String ICON_BSM	= ":BSM:"; //blacksmith
+	public static String ICON_CRP	= ":CRP:"; //carpenter
+	public static String ICON_CUL	= ":CUL:"; //culinarian
+	public static String ICON_GSM	= ":GSM:"; //goldsmith
+	public static String ICON_LTW	= ":LTW:"; //leatherworker
+	public static String ICON_WVR	= ":WVR:"; //weaver
 	
 	
 }
