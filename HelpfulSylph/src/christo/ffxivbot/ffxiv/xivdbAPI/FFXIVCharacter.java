@@ -13,16 +13,19 @@ import org.json.JSONObject;
 
 public class FFXIVCharacter {
 
-	public int id;
-
+	public int id; 
+	public String discordID;
+	//public String enjinName; //NOT SUPPORTED YET
+	
 	public String name, server, race, clan, gender, nameday, title, guardian, city, grandCompany, gcRank;
 	
-	public String icon;
+	public String icon, image;
 	
 	public List<ClassJob> classjobs;
 	
-	public FFXIVCharacter(int id) {
+	public FFXIVCharacter(int id, String discordID) {
 		this.id = id;
+		this.discordID = discordID;
 		try {
 			InputStream charRep = new URL(XIVBD.CHARACTER_URL+id).openStream();
 			try(Scanner scan2 = new Scanner(charRep)){
@@ -52,7 +55,8 @@ public class FFXIVCharacter {
 					gcRank = "N/A";
 				}
 				
-				icon = charData.getString("portrait");
+				icon = charData.getString("avatar");
+				image = charData.getString("portrait");
 
 			} catch (JSONException e){ e.printStackTrace(); }
 			

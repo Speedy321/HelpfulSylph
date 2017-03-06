@@ -5,10 +5,9 @@ import net.dv8tion.jda.client.entities.Group;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.GuildController;
@@ -18,9 +17,15 @@ import javax.security.auth.login.LoginException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import christo.ffxivbot.dataBase.CharacterDB;
+import christo.ffxivbot.ffxiv.CharacterCard;
 import christo.ffxivbot.ffxiv.xivdbAPI.FFXIVCharacter;
 import christo.ffxivbot.ffxiv.xivdbAPI.XIVBD;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,10 +34,13 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class HelpfulSyplh extends ListenerAdapter {
-    /**
-     * This is the method where the program starts.
-     */
+    
+	static JSONObject charDataBase =  new JSONObject();
+	
     public static void main(String[] args) {
+    	
+    	charDataBase = CharacterDB.makeDB(charDataBase);
+    	
         //We construct a builder for a BOT account. If we wanted to use a CLIENT account
         // we would use AccountType.CLIENT
         try {
@@ -44,7 +52,15 @@ public class HelpfulSyplh extends ListenerAdapter {
         catch (InterruptedException e) { e.printStackTrace(); }
         catch (RateLimitedException e) { e.printStackTrace(); }
     }
-
+    
+    @Override
+    public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+    	User usr = event.getMember().getUser();
+    	usr.openPrivateChannel().queue();
+    	PrivateChannel channel = usr.getPrivateChannel();
+    	//channel.sendMessage("boop!").queue();
+    }
+    
     /**
      * NOTE THE @Override!
      * This method is actually overriding a method in the ListenerAdapter class! We place an @Override annotation
@@ -118,25 +134,63 @@ public class HelpfulSyplh extends ListenerAdapter {
 	    				
 	    				String mess = "You have requested a search on: `"+msgParts[1]+" "+msgParts[2]+"`";
 	    				if(ids.size()>1) mess += ", there are "+ids.size()+" characters with this name.";
-	    				if(ids.size()>10) mess += " I will be showing the 10 first results.";
+	    				if(msgParts.length>3) mess += " I will be showing the results for `"+msgParts[3]+"`";
+	    				else if(ids.size()>5) mess += " I will be showing the 5 first results.";
 	    				
-	    				for(int i = 0; (i < ids.size())&&(i < 10); i++){
-	    					
-	    					FFXIVCharacter character = new FFXIVCharacter(ids.get(i));
-	
-	    					mess += "\n"+
-	    							"```"+character.name+" is a "+character.gender+" "+character.race+
-	    							" who is playing on "+character.server+" for the "+character.grandCompany+
-	    							" and has reached the rank of "+character.gcRank+"```";
-	    				}
-
 	    				channel.sendMessage(mess).queue();
+						boolean found = false;
 	    				
+	    				for(int i = 0; i < ids.size(); i++){
+	    					
+	    					FFXIVCharacter character = new FFXIVCharacter(ids.get(i), null);
+	    		
+	    					if(msgParts.length>3){
+		    					if(character.server.equalsIgnoreCase(msgParts[3])) {
+		    						channel.sendMessage(new CharacterCard(character).getCard()).queue();
+		    						found = true;
+		    					}
+	    					}else{	  
+	    						found = true;
+	    						channel.sendMessage(new CharacterCard(character).getCard()).queue();
+	    						if(i>4) break;
+	    					}
+	    				}	
+	    				
+	    				if(!found) channel.sendMessage("There is no one named `"+msgParts[1]+" "+msgParts[2]+"` on `"+msgParts[3]+"`").queue();
 	    			}
 	    		} catch(Exception e){ e.printStackTrace(); }
-        	} else {
-        		channel.sendMessage("Please enter both first and last names, with a space ex: ` !searchDB Tataru Taru` ").queue();
-        	}
+        	} else channel.sendMessage("Please enter both first and last names, with a space ex: ` !searchDB Tataru Taru` ").queue();
+        } else if(msg.startsWith("!iam")){
+        	System.out.println("registering character...");
+        	String[] msgParts = msg.split(" ");
+        	if(msgParts.length>3){
+        		
+        		CharacterDB.addToDB(new FFXIVCharacter(XIVBD.getCharID(msgParts[1]+" "+msgParts[2], msgParts[3]), author.getId()), charDataBase);
+        		
+        		File dbFile = new File("characterDB.json");
+        		try {
+					
+        			BufferedWriter bufWr = new BufferedWriter(new FileWriter(dbFile));
+					bufWr.write(charDataBase.toString());
+					
+					bufWr.close();
+					
+				} catch (IOException e) { e.printStackTrace(); }
+        		
+        		
+        		int rID = 10; //default to 11th role as lys...
+				for(int i = 0; i < event.getGuild().getRoles().size(); i++)
+					if(event.getGuild().getRoles().get(i).getName().equalsIgnoreCase("lys")) rID = i;
+				
+				channel.sendMessage("registered "+author.getAsMention()+" as `"+msgParts[1]+" "+msgParts[2]+"`").queue();
+				GuildController gcon = event.getGuild().getController();
+				gcon.setNickname(event.getMember(), msgParts[1]+" "+msgParts[2]).queue();
+				
+				gcon.addRolesToMember(event.getMember(), event.getGuild().getRoles().get(rID)).queue();
+					
+	        		
+	        		
+        	} else channel.sendMessage("Please enter both first and last names, with a space ex: ` !iam Tataru Taru Gilgamesh` ").queue();
         }
     }
 }
