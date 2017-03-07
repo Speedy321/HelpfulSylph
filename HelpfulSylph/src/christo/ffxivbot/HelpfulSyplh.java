@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import christo.ffxivbot.dataBase.CharacterDB;
 import christo.ffxivbot.ffxiv.CharacterCard;
+import christo.ffxivbot.ffxiv.fc.FreeCompagnie;
 import christo.ffxivbot.ffxiv.xivdbAPI.FFXIVCharacter;
 import christo.ffxivbot.ffxiv.xivdbAPI.XIVBD;
 
@@ -143,7 +144,7 @@ public class HelpfulSyplh extends ListenerAdapter {
 	    				for(int i = 0; i < ids.size(); i++){
 	    					
 	    					FFXIVCharacter character = new FFXIVCharacter(ids.get(i), null);
-	    		
+	    					
 	    					if(msgParts.length>3){
 		    					if(character.server.equalsIgnoreCase(msgParts[3])) {
 		    						channel.sendMessage(new CharacterCard(character).getCard()).queue();
@@ -164,6 +165,8 @@ public class HelpfulSyplh extends ListenerAdapter {
         	System.out.println("registering character...");
         	String[] msgParts = msg.split(" ");
         	if(msgParts.length>3){
+        		
+				JSONObject testObj = FreeCompagnie.getMembers("9232238498621161992");
         		
         		CharacterDB.addToDB(new FFXIVCharacter(XIVBD.getCharID(msgParts[1]+" "+msgParts[2], msgParts[3]), author.getId()), charDataBase);
         		
