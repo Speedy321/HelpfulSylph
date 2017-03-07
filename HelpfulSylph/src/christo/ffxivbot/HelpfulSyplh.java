@@ -166,8 +166,10 @@ public class HelpfulSyplh extends ListenerAdapter {
         	String[] msgParts = msg.split(" ");
         	if(msgParts.length>3){
         		
-				JSONObject testObj = FreeCompagnie.getMembers("9232238498621161992");
+				JSONObject fcMembers = FreeCompagnie.getMembers("9232238498621161992");
         		
+				//fcMembers.ge
+				
         		CharacterDB.addToDB(new FFXIVCharacter(XIVBD.getCharID(msgParts[1]+" "+msgParts[2], msgParts[3]), author.getId()), charDataBase);
         		
         		File dbFile = new File("characterDB.json");

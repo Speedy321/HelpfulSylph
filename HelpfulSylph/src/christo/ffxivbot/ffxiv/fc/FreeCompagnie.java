@@ -20,37 +20,36 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 public class FreeCompagnie {
 
 	public static String JAMAPI = "https://www.jamapi.xyz/";
-	static String test = "{\"url\": \"http://na.finalfantasyxiv.com/lodestone/freecompany/9232238498621161992/\",\"json_data\": {\"members \": [{\"elem \": \".name_box a \",\"name \": \"text \",\"link \": \"href \"}]}}";
-	static String requestUrl = "{\"url\":\"http://na.finalfantasyxiv.com/lodestone/freecompany/";
-	static String requestData = "/, \"json_data\":\"{\"members\": [{\"elem\": \".name_box a\", \"name\": \"text\", \"link\": \"href\"}]}\"}";
+	
+	static String requestUrl = "http://na.finalfantasyxiv.com/lodestone/freecompany/";
+	static String requestUrl_2 = "/member/";
+	static String requestData = "{ \"members\":[{\"elem\":\".name_box a\", \"name\":\"text\", \"link\":\"href\"}] }";
+	static String requestPageCount = "{\"data\":[{ \"elem\": \".total\", \"count\": \"text\" }] }";
 	
 	public static JSONObject getMembers(String fcID){
 
 		JSONObject fcMemembers = new JSONObject();
 		try {
+			HttpResponse<JsonNode> requestpages = Unirest.post(JAMAPI)
+					.field("url", requestUrl+fcID+requestUrl_2)
+					.field("json_data", requestPageCount)
+					.asJson();
 			
-			//JSONObject request = new JSONObject(/*requestUrl+fcID+requestData*/test);
+			JsonNode jnode = requestpages.getBody();
+			int pages = (int)Math.ceil((double)(Integer.parseInt(jnode.getObject().getJSONArray("data").getJSONObject(0).getString("count")))/50); 
 			
-			//HttpResponse<JsonNode> jsonNode = Unirest.post(JAMAPI).body(request).asJson();
-			HttpURLConnection respCon = (HttpURLConnection) new URL(JAMAPI).openConnection();
-			respCon.setDoOutput(true);
-			respCon.setRequestMethod("POST");
-			respCon.setRequestProperty("url", "http://na.finalfantasyxiv.com/lodestone/freecompany/9232238498621161992/");
-			respCon.setRequestProperty("json_data", "{\"members\": [{\"elem\": \".name_box a\", \"name\": \"text\", \"link\": \"href\"}]}");
-			respCon.connect();
-			
-			InputStream is = respCon.getInputStream();
-			Scanner scan = new Scanner(is);
-			String str = scan.nextLine();
+			for(int i = 1; i < pages+1; i++){
+				HttpResponse<JsonNode> membersFragment = Unirest.post(JAMAPI)
+						.field("url", requestUrl+fcID+requestUrl_2+"?page="+i)
+						.field("json_data", requestData)
+						.asJson();
 				
-			scan.close();
-			is.close();
+				
+				
+			}
 			
-			fcMemembers = new JSONObject(str);
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		} catch (UnirestException e) { e.printStackTrace(); }
+		
 		
 		
 		return fcMemembers;
