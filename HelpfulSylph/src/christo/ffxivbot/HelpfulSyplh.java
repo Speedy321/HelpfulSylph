@@ -7,6 +7,8 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -37,10 +39,11 @@ import java.util.Scanner;
 public class HelpfulSyplh extends ListenerAdapter {
     
 	static JSONObject charDataBase =  new JSONObject();
+	static String charDBPath = "characterDB.json";
 	
     public static void main(String[] args) {
     	
-    	charDataBase = CharacterDB.makeDB(charDataBase);
+    	charDataBase = CharacterDB.makeDB(charDataBase, charDBPath);
     	
         //We construct a builder for a BOT account. If we wanted to use a CLIENT account
         // we would use AccountType.CLIENT
@@ -60,6 +63,20 @@ public class HelpfulSyplh extends ListenerAdapter {
     	usr.openPrivateChannel().queue();
     	PrivateChannel channel = usr.getPrivateChannel();
     	//channel.sendMessage("boop!").queue();
+    }
+    
+    @Override
+    public void onGuildVoiceJoin(GuildVoiceJoinEvent event){
+    	if(event.getChannelJoined().getName().equalsIgnoreCase("Party") && event.getGuild().getVoiceChannelsByName("Party", true).size() < 6){
+    		event.getGuild().getController().createVoiceChannel("Party").setUserlimit(8).queue();
+    	}
+    }
+    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event){
+    	if(event.getChannelLeft().getName().equalsIgnoreCase("Party") 
+    		&& (event.getGuild().getVoiceChannelsByName("Party", true).size() > 1)
+    		&& event.getChannelLeft().getMembers().size()<1){
+    			event.getChannelLeft().delete().queue();
+    	}
     }
     
     /**
@@ -167,30 +184,23 @@ public class HelpfulSyplh extends ListenerAdapter {
         	if(msgParts.length>3){
         		
 				JSONObject fcMembers = FreeCompagnie.getMembers("9232238498621161992");
-        		
-				//fcMembers.ge
+        		FFXIVCharacter ffchara = new FFXIVCharacter(XIVBD.getCharID(msgParts[1]+" "+msgParts[2], msgParts[3]),author.getId());
 				
-        		CharacterDB.addToDB(new FFXIVCharacter(XIVBD.getCharID(msgParts[1]+" "+msgParts[2], msgParts[3]), author.getId()), charDataBase);
-        		
-        		File dbFile = new File("characterDB.json");
-        		try {
-					
-        			BufferedWriter bufWr = new BufferedWriter(new FileWriter(dbFile));
-					bufWr.write(charDataBase.toString());
-					
-					bufWr.close();
-					
-				} catch (IOException e) { e.printStackTrace(); }
-        		
+        		CharacterDB.addToDB(ffchara, charDataBase);
+        		CharacterDB.writeDBToDisc(charDataBase, charDBPath);
         		
         		int rID = 10; //default to 11th role as lys...
 				for(int i = 0; i < event.getGuild().getRoles().size(); i++)
 					if(event.getGuild().getRoles().get(i).getName().equalsIgnoreCase("lys")) rID = i;
 				
-				channel.sendMessage("registered "+author.getAsMention()+" as `"+msgParts[1]+" "+msgParts[2]+"`").queue();
-				GuildController gcon = event.getGuild().getController();
-				gcon.setNickname(event.getMember(), msgParts[1]+" "+msgParts[2]).queue();
+				for(int i = 0; i < fcMembers.getJSONArray("list").length(); i++)
+					if(ffchara.name.equalsIgnoreCase(fcMembers.getJSONArray("list").getJSONObject(i).getString("name"))) //add to rolelist "lys"
 				
+				author.getPrivateChannel().sendMessage("You have been registered on "+event.getGuild().getName()+" as your FFXIV character `"+msgParts[1]+" "+msgParts[2]+"`");
+				
+				GuildController gcon = event.getGuild().getController();
+				
+				gcon.setNickname(event.getMember(), msgParts[1]+" "+msgParts[2]).queue();
 				gcon.addRolesToMember(event.getMember(), event.getGuild().getRoles().get(rID)).queue();
 					
 	        		
