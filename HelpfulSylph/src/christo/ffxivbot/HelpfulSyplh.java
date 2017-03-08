@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -79,6 +80,8 @@ public class HelpfulSyplh extends ListenerAdapter {
     			event.getGuild().getController().createVoiceChannel("Raid room").setUserlimit(24).queue();
     	}
     }
+    
+    @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event){
     	
     	if(event.getChannelLeft().getName().equalsIgnoreCase("Party") 
@@ -90,6 +93,32 @@ public class HelpfulSyplh extends ListenerAdapter {
         	&& event.getChannelLeft().getMembers().size()<1){
         		event.getChannelLeft().delete().queue();
         }
+    }
+    
+    @Override
+    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+    	    	
+    	if(event.getChannelJoined().getName().equalsIgnoreCase("Party") 
+        	&& event.getGuild().getVoiceChannelsByName("Party", true).size() < 10){
+        		event.getGuild().getController().createVoiceChannel("Party").setUserlimit(8).queue();
+        }else if(event.getChannelJoined().getName().equalsIgnoreCase("Party") 
+           	&& event.getGuild().getVoiceChannelsByName("Party", true).size() >= 10){
+        		//Non spammy way to tell the max number has been reached?
+        }else if(event.getChannelJoined().getName().equalsIgnoreCase("Raid room") 
+        	&& event.getGuild().getVoiceChannelsByName("Raid room", true).size() < 6){
+        		event.getGuild().getController().createVoiceChannel("Raid room").setUserlimit(24).queue();
+        }
+    	
+    	if(event.getChannelLeft().getName().equalsIgnoreCase("Party") 
+        	&& (event.getGuild().getVoiceChannelsByName("Party", true).size() > 1)
+        	&& event.getChannelLeft().getMembers().size()<1){
+        		event.getChannelLeft().delete().queue();
+        }else if(event.getChannelLeft().getName().equalsIgnoreCase("Raid room") 
+           	&& (event.getGuild().getVoiceChannelsByName("Raid room", true).size() > 1)
+           	&& event.getChannelLeft().getMembers().size()<1){
+           		event.getChannelLeft().delete().queue();
+        }
+    	
     }
     
     /**
