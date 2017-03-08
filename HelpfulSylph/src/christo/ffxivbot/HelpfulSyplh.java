@@ -67,16 +67,29 @@ public class HelpfulSyplh extends ListenerAdapter {
     
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event){
-    	if(event.getChannelJoined().getName().equalsIgnoreCase("Party") && event.getGuild().getVoiceChannelsByName("Party", true).size() < 6){
-    		event.getGuild().getController().createVoiceChannel("Party").setUserlimit(8).queue();
+    	
+    	if(event.getChannelJoined().getName().equalsIgnoreCase("Party") 
+    		&& event.getGuild().getVoiceChannelsByName("Party", true).size() < 10){
+    			event.getGuild().getController().createVoiceChannel("Party").setUserlimit(8).queue();
+    	}else if(event.getChannelJoined().getName().equalsIgnoreCase("Party") 
+        	&& event.getGuild().getVoiceChannelsByName("Party", true).size() >= 10){
+    			//Non spammy way to tell the max number has been reached?
+    	}else if(event.getChannelJoined().getName().equalsIgnoreCase("Raid room") 
+    		&& event.getGuild().getVoiceChannelsByName("Raid room", true).size() < 6){
+    			event.getGuild().getController().createVoiceChannel("Raid room").setUserlimit(24).queue();
     	}
     }
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event){
+    	
     	if(event.getChannelLeft().getName().equalsIgnoreCase("Party") 
     		&& (event.getGuild().getVoiceChannelsByName("Party", true).size() > 1)
     		&& event.getChannelLeft().getMembers().size()<1){
     			event.getChannelLeft().delete().queue();
-    	}
+    	}else if(event.getChannelLeft().getName().equalsIgnoreCase("Raid room") 
+        	&& (event.getGuild().getVoiceChannelsByName("Raid room", true).size() > 1)
+        	&& event.getChannelLeft().getMembers().size()<1){
+        		event.getChannelLeft().delete().queue();
+        }
     }
     
     /**
