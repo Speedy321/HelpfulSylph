@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
@@ -14,6 +15,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.GuildController;
+import net.dv8tion.jda.core.requests.restaction.ChannelOrderAction;
+import net.dv8tion.jda.core.requests.restaction.OrderAction;
 
 import javax.security.auth.login.LoginException;
 
@@ -64,6 +67,23 @@ public class HelpfulSyplh extends ListenerAdapter {
     	usr.openPrivateChannel().queue();
     	PrivateChannel channel = usr.getPrivateChannel();
     	//channel.sendMessage("boop!").queue();
+    }
+    
+    @Override
+    public void onVoiceChannelCreate(VoiceChannelCreateEvent event) {
+    	
+    	if(event.getChannel().getName().equalsIgnoreCase("Party")){
+    		ChannelOrderAction<VoiceChannel> chanOrderAction = new ChannelOrderAction<>(event.getGuild(), ChannelType.VOICE);
+    	
+    		chanOrderAction.selectPosition(event.getChannel()).queue();
+    		chanOrderAction.moveTo(3).queue();
+    	}else if(event.getChannel().getName().equalsIgnoreCase("Raid room")){
+    		ChannelOrderAction<VoiceChannel> chanOrderAction = new ChannelOrderAction<>(event.getGuild(), ChannelType.VOICE);
+        	
+    		chanOrderAction.selectPosition(event.getChannel()).queue();
+    		chanOrderAction.moveTo(4).queue();
+    	}
+    	
     }
     
     @Override
