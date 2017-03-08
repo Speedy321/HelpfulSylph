@@ -22,7 +22,8 @@ public class FFXIVCharacter {
 	public String icon, image;
 	
 	public List<ClassJob> classjobs;
-	
+	public List<String> fcRoles;
+ 	
 	public FFXIVCharacter(int id, String discordID) {
 		this.id = id;
 		this.discordID = discordID;
@@ -57,7 +58,7 @@ public class FFXIVCharacter {
 				
 				icon = charData.getString("avatar");
 				image = charData.getString("portrait");
-
+				
 			} catch (JSONException e){ e.printStackTrace(); }
 			
 			charRep.close();

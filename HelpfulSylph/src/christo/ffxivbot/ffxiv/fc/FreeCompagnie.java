@@ -1,15 +1,6 @@
 package christo.ffxivbot.ffxiv.fc;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Scanner;
-
-import javax.net.ssl.HttpsURLConnection;
-
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.mashape.unirest.http.HttpResponse;
@@ -19,6 +10,8 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class FreeCompagnie {
 
+	//TODO: convert href into id
+	
 	public static String JAMAPI = "https://www.jamapi.xyz/";
 	
 	static String requestUrl = "http://na.finalfantasyxiv.com/lodestone/freecompany/";
@@ -26,9 +19,15 @@ public class FreeCompagnie {
 	static String requestData = "{ \"members\":[{\"elem\":\".name_box a\", \"name\":\"text\", \"link\":\"href\"}] }";
 	static String requestPageCount = "{\"data\":[{ \"elem\": \".total\", \"count\": \"text\" }] }";
 	
+	public static int toID(JSONObject jo){
+		String hrefParts[] = jo.getString("link").split("/");
+		return Integer.parseInt(hrefParts[3]);//TODO check for right part
+	}
+	
 	public static JSONObject getMembers(String fcID){
 
 		JSONObject fcMemembers = new JSONObject();
+		fcMemembers.put("list", new JSONArray());
 		try {
 			HttpResponse<JsonNode> requestpages = Unirest.post(JAMAPI)
 					.field("url", requestUrl+fcID+requestUrl_2)
@@ -44,13 +43,16 @@ public class FreeCompagnie {
 						.field("json_data", requestData)
 						.asJson();
 				
+				JsonNode memFragJNode = membersFragment.getBody();
 				
+				for(int j = 0; j < memFragJNode.getObject().getJSONArray("members").length();j++){
+					memFragJNode.getObject().getJSONArray("members").getJSONObject(j).put("id", toID(memFragJNode.getObject().getJSONArray("members").getJSONObject(j)));
+					fcMemembers.getJSONArray("list").put((j+(50*(i-1))),memFragJNode.getObject().getJSONArray("members").get(j));
+				}
 				
 			}
 			
 		} catch (UnirestException e) { e.printStackTrace(); }
-		
-		
 		
 		return fcMemembers;
 	}

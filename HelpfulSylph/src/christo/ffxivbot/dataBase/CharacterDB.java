@@ -1,9 +1,11 @@
 package christo.ffxivbot.dataBase;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +19,9 @@ public class CharacterDB {
 	
 	long index = 0;
 
-	public static JSONObject makeDB(JSONObject db){
+	public static JSONObject makeDB(JSONObject db, String path){
 		
-		File dbFile = new File("characterDB.json");
+		File dbFile = new File(path);
 		if(dbFile.exists()){
 			try {
 				BufferedReader bufR = new BufferedReader(new FileReader(dbFile));
@@ -66,4 +68,15 @@ public class CharacterDB {
 		
 		return obj;
 	}	
+	public static void writeDBToDisc(JSONObject db, String path){
+		File dbFile = new File(path);
+		try {
+			
+			BufferedWriter bufWr = new BufferedWriter(new FileWriter(dbFile));
+			bufWr.write(db.toString());
+			
+			bufWr.close();
+			
+		} catch (IOException e) { e.printStackTrace(); }
+	}
 }
