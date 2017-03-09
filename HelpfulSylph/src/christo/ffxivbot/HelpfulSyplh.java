@@ -22,6 +22,7 @@ import javax.security.auth.login.LoginException;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import christo.ffxivbot.dataBase.CharacterDB;
 import christo.ffxivbot.ffxiv.CharacterCard;
@@ -39,6 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HelpfulSyplh extends ListenerAdapter {
     
@@ -49,13 +52,27 @@ public class HelpfulSyplh extends ListenerAdapter {
     	
     	charDataBase = CharacterDB.makeDB(charDataBase, charDBPath);
     	
+    	Timer timer = new Timer();
+    	//timer.scheduleAtFixedRate(new TimerTask() {
+			//@Override
+			//public void run() {
+				JSONObject fcMembers = FreeCompagnie.getMembers("9232238498621161992");
+        		List<FFXIVCharacter> fcMembersChara = FreeCompagnie.toCharList(fcMembers);
+				CharacterDB.addToDB(fcMembersChara, charDataBase);
+        		//JSONArray array = new JSONArray(fcMembersChara);
+				//charDataBase.put("list", array); 
+			//}
+		//}, );
+    	
         //We construct a builder for a BOT account. If we wanted to use a CLIENT account
         // we would use AccountType.CLIENT
         try {
+            @SuppressWarnings("unused")
             JDA jda = new JDABuilder(AccountType.BOT)
                     .setToken("xxxx")           //The token of the account that is logging in.
                     .addListener(new HelpfulSyplh())  //An instance of a class that will handle events.
                     .buildBlocking();  //There are 2 ways to login, blocking vs async. Blocking guarantees that JDA will be completely loaded.
+			
         }catch (LoginException e) { e.printStackTrace(); }
         catch (InterruptedException e) { e.printStackTrace(); }
         catch (RateLimitedException e) { e.printStackTrace(); }
@@ -82,6 +99,11 @@ public class HelpfulSyplh extends ListenerAdapter {
         	
     		chanOrderAction.selectPosition(event.getChannel()).queue();
     		chanOrderAction.moveTo(4).queue();
+    	}else if(event.getChannel().getName().equalsIgnoreCase("Autre jeu")){
+    		ChannelOrderAction<VoiceChannel> chanOrderAction = new ChannelOrderAction<>(event.getGuild(), ChannelType.VOICE);
+        	
+    		chanOrderAction.selectPosition(event.getChannel()).queue();
+    		chanOrderAction.moveTo(5).queue();
     	}
     	
     }
@@ -92,12 +114,12 @@ public class HelpfulSyplh extends ListenerAdapter {
     	if(event.getChannelJoined().getName().equalsIgnoreCase("Party") 
     		&& event.getGuild().getVoiceChannelsByName("Party", true).size() < 10){
     			event.getGuild().getController().createVoiceChannel("Party").setUserlimit(8).queue();
-    	}else if(event.getChannelJoined().getName().equalsIgnoreCase("Party") 
-        	&& event.getGuild().getVoiceChannelsByName("Party", true).size() >= 10){
-    			//Non spammy way to tell the max number has been reached?
     	}else if(event.getChannelJoined().getName().equalsIgnoreCase("Raid room") 
     		&& event.getGuild().getVoiceChannelsByName("Raid room", true).size() < 6){
     			event.getGuild().getController().createVoiceChannel("Raid room").setUserlimit(24).queue();
+    	}else if(event.getChannelJoined().getName().equalsIgnoreCase("Autre jeu") 
+        	&& event.getGuild().getVoiceChannelsByName("Autre jeu", true).size() < 6){
+    			event.getGuild().getController().createVoiceChannel("Autre jeu").queue();
     	}
     }
     
@@ -112,51 +134,43 @@ public class HelpfulSyplh extends ListenerAdapter {
         	&& (event.getGuild().getVoiceChannelsByName("Raid room", true).size() > 1)
         	&& event.getChannelLeft().getMembers().size()<1){
         		event.getChannelLeft().delete().queue();
+        }else if(event.getChannelLeft().getName().equalsIgnoreCase("Autre jeu") 
+           	&& (event.getGuild().getVoiceChannelsByName("Autre jeu", true).size() > 1)
+           	&& event.getChannelLeft().getMembers().size()<1){
+           		event.getChannelLeft().delete().queue();
         }
     }
     
     @Override
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
     	    	
+
     	if(event.getChannelJoined().getName().equalsIgnoreCase("Party") 
-        	&& event.getGuild().getVoiceChannelsByName("Party", true).size() < 10){
-        		event.getGuild().getController().createVoiceChannel("Party").setUserlimit(8).queue();
-        }else if(event.getChannelJoined().getName().equalsIgnoreCase("Party") 
-           	&& event.getGuild().getVoiceChannelsByName("Party", true).size() >= 10){
-        		//Non spammy way to tell the max number has been reached?
-        }else if(event.getChannelJoined().getName().equalsIgnoreCase("Raid room") 
-        	&& event.getGuild().getVoiceChannelsByName("Raid room", true).size() < 6){
-        		event.getGuild().getController().createVoiceChannel("Raid room").setUserlimit(24).queue();
-        }
+    		&& event.getGuild().getVoiceChannelsByName("Party", true).size() < 10){
+    			event.getGuild().getController().createVoiceChannel("Party").setUserlimit(8).queue();
+    	}else if(event.getChannelJoined().getName().equalsIgnoreCase("Raid room") 
+    		&& event.getGuild().getVoiceChannelsByName("Raid room", true).size() < 6){
+    			event.getGuild().getController().createVoiceChannel("Raid room").setUserlimit(24).queue();
+    	}else if(event.getChannelJoined().getName().equalsIgnoreCase("Autre jeu") 
+        	&& event.getGuild().getVoiceChannelsByName("Autre jeu", true).size() < 6){
+    			event.getGuild().getController().createVoiceChannel("Autre jeu").queue();
+    	}
     	
     	if(event.getChannelLeft().getName().equalsIgnoreCase("Party") 
         	&& (event.getGuild().getVoiceChannelsByName("Party", true).size() > 1)
         	&& event.getChannelLeft().getMembers().size()<1){
         		event.getChannelLeft().delete().queue();
         }else if(event.getChannelLeft().getName().equalsIgnoreCase("Raid room") 
-           	&& (event.getGuild().getVoiceChannelsByName("Raid room", true).size() > 1)
-           	&& event.getChannelLeft().getMembers().size()<1){
-           		event.getChannelLeft().delete().queue();
-        }
-    	
+            && (event.getGuild().getVoiceChannelsByName("Raid room", true).size() > 1)
+            && event.getChannelLeft().getMembers().size()<1){
+            	event.getChannelLeft().delete().queue();
+        }else if(event.getChannelLeft().getName().equalsIgnoreCase("Autre jeu") 
+            && (event.getGuild().getVoiceChannelsByName("Autre jeu", true).size() > 1)
+            && event.getChannelLeft().getMembers().size()<1){
+            	event.getChannelLeft().delete().queue();
+        }	
     }
     
-    /**
-     * NOTE THE @Override!
-     * This method is actually overriding a method in the ListenerAdapter class! We place an @Override annotation
-     *  right before any method that is overriding another to guarantee to ourselves that it is actually overriding
-     *  a method from a super class properly. You should do this every time you override a method!
-     *
-     * As stated above, this method is overriding a hook method in the
-     * {@link net.dv8tion.jda.core.hooks.ListenerAdapter ListenerAdapter} class. It has convience methods for all JDA events!
-     * Consider looking through the events it offers if you plan to use the ListenerAdapter.
-     *
-     * In this example, when a message is received it is printed to the console.
-     *
-     * @param event
-     *          An event containing information about a {@link net.dv8tion.jda.core.entities.Message Message} that was
-     *          sent in a channel.
-     */
     @Override
     public void onMessageReceived(MessageReceivedEvent event){
         //These are provided with every event in JDA

@@ -1,5 +1,8 @@
 package christo.ffxivbot.ffxiv.fc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -7,6 +10,8 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+
+import christo.ffxivbot.ffxiv.xivdbAPI.FFXIVCharacter;
 
 public class FreeCompagnie {
 
@@ -38,6 +43,9 @@ public class FreeCompagnie {
 			int pages = (int)Math.ceil((double)(Integer.parseInt(jnode.getObject().getJSONArray("data").getJSONObject(0).getString("count")))/50); 
 			
 			for(int i = 1; i < pages+1; i++){
+				
+				System.out.println("Getting fc members page "+i+" ...");
+				
 				HttpResponse<JsonNode> membersFragment = Unirest.post(JAMAPI)
 						.field("url", requestUrl+fcID+requestUrl_2+"?page="+i)
 						.field("json_data", requestData)
@@ -55,6 +63,18 @@ public class FreeCompagnie {
 		} catch (UnirestException e) { e.printStackTrace(); }
 		
 		return fcMemembers;
+	}
+
+	public static List<FFXIVCharacter> toCharList(JSONObject fcMembers) {
+		
+		List<FFXIVCharacter> charList = new ArrayList<>();
+		
+		for(int i = 0; i < fcMembers.getJSONArray("list").length(); i++){
+			charList.add(new FFXIVCharacter(fcMembers.getJSONArray("list").getJSONObject(i).getInt("id"), ""));
+			if(i%20==0) System.out.println("Adding char #"+i+" to the list...");
+		}
+		
+		return charList;
 	}
 	
 }

@@ -15,14 +15,14 @@ public class FFXIVCharacter {
 
 	public int id; 
 	public String discordID;
-	//public String enjinName; //NOT SUPPORTED YET
 	
 	public String name, server, race, clan, gender, nameday, title, guardian, city, grandCompany, gcRank;
 	
 	public String icon, image;
 	
 	public List<ClassJob> classjobs;
-	public List<String> fcRoles;
+	
+	public String fcRank;
  	
 	public FFXIVCharacter(int id, String discordID) {
 		this.id = id;

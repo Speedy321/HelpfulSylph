@@ -43,12 +43,23 @@ public class CharacterDB {
 		return db;				
 	}
 	
+	/**
+	 * Recreate db from list, checking nothing, discordID most likely null;
+	 * TODO: update and not overwrite info in chars.
+	 * @param charList
+	 * @param db
+	 */
 	public static void addToDB(List<FFXIVCharacter> charList, JSONObject db){
 		for(int i = 0; i < charList.size(); i++){
-			addToDB(charList.get(i), db);
+			db.getJSONArray("list").put(i, asJSON(charList.get(i)));
 		}
 	}
 	
+	/**
+	 * Adds to db, checking for discordID
+	 * @param charData
+	 * @param db
+	 */
 	public static void addToDB(FFXIVCharacter charData, JSONObject db){
 		for(int i = 0; i < db.getJSONArray("list").length(); i++){
 			if(db.getJSONArray("list").getJSONObject(i).getString("discordID") == charData.discordID){
