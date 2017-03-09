@@ -3,11 +3,13 @@ package christo.ffxivbot.ffxiv.xivdbAPI;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import javax.xml.bind.annotation.XmlValue;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -55,6 +57,8 @@ public class FFXIVCharacter {
 					grandCompany = "N/A";
 					gcRank = "N/A";
 				}
+				 
+				makeClassJobList(charClassJobs);
 				
 				icon = charData.getString("avatar");
 				image = charData.getString("portrait");
@@ -65,6 +69,18 @@ public class FFXIVCharacter {
 			
 		} catch (IOException e1) { e1.printStackTrace(); }
 
+	}
+	
+	void makeClassJobList(JSONObject classJobList){
+		classjobs = new ArrayList<ClassJob>();
+		for(int i = 0; i < 18; i++){
+			classjobs.add(i, new ClassJob(classJobList.getJSONObject(""+(i+1)).getString("name"), classJobList.getJSONObject(""+(i+1)).getInt("level")));	
+		}
+		classjobs.add(18, new ClassJob(classJobList.getJSONObject(""+26).getString("name"), classJobList.getJSONObject(""+26).getInt("level")));	
+		classjobs.add(19, new ClassJob(classJobList.getJSONObject(""+29).getString("name"), classJobList.getJSONObject(""+29).getInt("level")));	
+		for(int i = 20; i < 23; i++){
+			classjobs.add(i, new ClassJob(classJobList.getJSONObject(""+(i+11)).getString("name"), classJobList.getJSONObject(""+(i+11)).getInt("level")));	
+		}
 	}
 	
 }

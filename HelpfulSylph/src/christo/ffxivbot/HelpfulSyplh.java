@@ -56,9 +56,9 @@ public class HelpfulSyplh extends ListenerAdapter {
     	//timer.scheduleAtFixedRate(new TimerTask() {
 			//@Override
 			//public void run() {
-				JSONObject fcMembers = FreeCompagnie.getMembers("9232238498621161992");
-        		List<FFXIVCharacter> fcMembersChara = FreeCompagnie.toCharList(fcMembers);
-				CharacterDB.addToDB(fcMembersChara, charDataBase);
+			//	JSONObject fcMembers = FreeCompagnie.getMembers("9232238498621161992");
+        	//	List<FFXIVCharacter> fcMembersChara = FreeCompagnie.toCharList(fcMembers);
+			//	CharacterDB.addToDB(fcMembersChara, charDataBase);
         		//JSONArray array = new JSONArray(fcMembersChara);
 				//charDataBase.put("list", array); 
 			//}
@@ -159,7 +159,6 @@ public class HelpfulSyplh extends ListenerAdapter {
     	if(event.getChannelLeft().getName().equalsIgnoreCase("Party") 
         	&& (event.getGuild().getVoiceChannelsByName("Party", true).size() > 1)
         	&& event.getChannelLeft().getMembers().size()<1){
-        		event.getChannelLeft().delete().queue();
         }else if(event.getChannelLeft().getName().equalsIgnoreCase("Raid room") 
             && (event.getGuild().getVoiceChannelsByName("Raid room", true).size() > 1)
             && event.getChannelLeft().getMembers().size()<1){
@@ -229,7 +228,7 @@ public class HelpfulSyplh extends ListenerAdapter {
 	    				String mess = "You have requested a search on: `"+msgParts[1]+" "+msgParts[2]+"`";
 	    				if(ids.size()>1) mess += ", there are "+ids.size()+" characters with this name.";
 	    				if(msgParts.length>3) mess += " I will be showing the results for `"+msgParts[3]+"`";
-	    				else if(ids.size()>5) mess += " I will be showing the 5 first results.";
+	    				else if(ids.size()>3) mess += " I will be showing the 3 first results.";
 	    				
 	    				channel.sendMessage(mess).queue();
 						boolean found = false;
@@ -240,17 +239,21 @@ public class HelpfulSyplh extends ListenerAdapter {
 	    					
 	    					if(msgParts.length>3){
 		    					if(character.server.equalsIgnoreCase(msgParts[3])) {
-		    						channel.sendMessage(new CharacterCard(character).getCard()).queue();
+		    						CharacterCard card = new CharacterCard(character);
+		    						channel.sendMessage(card.getCard()).queue();
 		    						found = true;
 		    					}
 	    					}else{	  
 	    						found = true;
 	    						channel.sendMessage(new CharacterCard(character).getCard()).queue();
-	    						if(i>4) break;
+	    						if(i>2) break;
 	    					}
 	    				}	
 	    				
-	    				if(!found) channel.sendMessage("There is no one named `"+msgParts[1]+" "+msgParts[2]+"` on `"+msgParts[3]+"`").queue();
+	    				if(!found){
+	    					if(msgParts.length>3)channel.sendMessage("There is no one named `"+msgParts[1]+" "+msgParts[2]+"` on `"+msgParts[3]+"`").queue();
+	    					else channel.sendMessage("There is no one named `"+msgParts[1]+" "+msgParts[2]+"`").queue();
+	    				}
 	    			}
 	    		} catch(Exception e){ e.printStackTrace(); }
         	} else channel.sendMessage("Please enter both first and last names, with a space ex: ` !searchDB Tataru Taru` ").queue();
