@@ -30,7 +30,7 @@ public class FFXIVCharacter {
 		this.id = id;
 		this.discordID = discordID;
 		try {
-			InputStream charRep = new URL(XIVBD.CHARACTER_URL+id).openStream();
+			InputStream charRep = new URL(XIVBD.CHARACTER_URL_API+id).openStream();
 			try(Scanner scan2 = new Scanner(charRep)){
 				String charBody = scan2.nextLine();
 			
