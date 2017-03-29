@@ -1,5 +1,5 @@
 package christo.ffxivbot.ffxiv.fc;
-
+ 
 import java.util.ArrayList;
 import java.util.List;
 

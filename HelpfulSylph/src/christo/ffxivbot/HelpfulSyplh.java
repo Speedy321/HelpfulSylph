@@ -112,10 +112,12 @@ public class HelpfulSyplh extends ListenerAdapter {
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event){
     	
     	if(event.getChannelJoined().getName().equalsIgnoreCase("Party") 
-    		&& event.getGuild().getVoiceChannelsByName("Party", true).size() < 10){
+    		&& event.getGuild().getVoiceChannelsByName("Party", true).size() < 10
+    		&& event.getChannelJoined().getMembers().size() < 2){
     			event.getGuild().getController().createVoiceChannel("Party").setUserlimit(8).queue();
     	}else if(event.getChannelJoined().getName().equalsIgnoreCase("Raid room") 
-    		&& event.getGuild().getVoiceChannelsByName("Raid room", true).size() < 6){
+    		&& event.getGuild().getVoiceChannelsByName("Raid room", true).size() < 6
+    		&& event.getChannelJoined().getMembers().size() < 2){
     			event.getGuild().getController().createVoiceChannel("Raid room").setUserlimit(24).queue();
     	}else if(event.getChannelJoined().getName().equalsIgnoreCase("Autre jeu") 
         	&& event.getGuild().getVoiceChannelsByName("Autre jeu", true).size() < 6){
@@ -146,10 +148,12 @@ public class HelpfulSyplh extends ListenerAdapter {
     	    	
 
     	if(event.getChannelJoined().getName().equalsIgnoreCase("Party") 
-    		&& event.getGuild().getVoiceChannelsByName("Party", true).size() < 10){
+    		&& event.getGuild().getVoiceChannelsByName("Party", true).size() < 10
+    		&& event.getChannelJoined().getMembers().size() < 2){
     			event.getGuild().getController().createVoiceChannel("Party").setUserlimit(8).queue();
     	}else if(event.getChannelJoined().getName().equalsIgnoreCase("Raid room") 
-    		&& event.getGuild().getVoiceChannelsByName("Raid room", true).size() < 6){
+    		&& event.getGuild().getVoiceChannelsByName("Raid room", true).size() < 6
+    		&& event.getChannelJoined().getMembers().size() < 2){
     			event.getGuild().getController().createVoiceChannel("Raid room").setUserlimit(24).queue();
     	}else if(event.getChannelJoined().getName().equalsIgnoreCase("Autre jeu") 
         	&& event.getGuild().getVoiceChannelsByName("Autre jeu", true).size() < 6){
@@ -159,6 +163,7 @@ public class HelpfulSyplh extends ListenerAdapter {
     	if(event.getChannelLeft().getName().equalsIgnoreCase("Party") 
         	&& (event.getGuild().getVoiceChannelsByName("Party", true).size() > 1)
         	&& event.getChannelLeft().getMembers().size()<1){
+        		event.getChannelLeft().delete().queue();
         }else if(event.getChannelLeft().getName().equalsIgnoreCase("Raid room") 
             && (event.getGuild().getVoiceChannelsByName("Raid room", true).size() > 1)
             && event.getChannelLeft().getMembers().size()<1){
@@ -259,7 +264,7 @@ public class HelpfulSyplh extends ListenerAdapter {
         	} else channel.sendMessage("Please enter both first and last names, with a space ex: ` !searchDB Tataru Taru` ").queue();
         } else if(msg.startsWith("!iam")){
         	System.out.println("registering character...");
-        	String[] msgParts = msg.split(" ");
+         	String[] msgParts = msg.split(" ");
         	if(msgParts.length>3){
         		
 				JSONObject fcMembers = FreeCompagnie.getMembers("9232238498621161992");

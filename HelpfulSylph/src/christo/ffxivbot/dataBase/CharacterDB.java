@@ -46,7 +46,8 @@ public class CharacterDB {
 	/**
 	 * Recreate db from list, checking nothing, discordID most likely null;
 	 * TODO: update and not overwrite info in chars.
-	 * @param charList
+	 * @param charList.6
+	 * 
 	 * @param db
 	 */
 	public static void addToDB(List<FFXIVCharacter> charList, JSONObject db){
